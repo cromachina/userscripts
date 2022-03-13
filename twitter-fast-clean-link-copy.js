@@ -1,0 +1,44 @@
+// ==UserScript==
+// @name         Twitter fast clean link copy
+// @namespace    http://tampermonkey.net/
+// @version      0.1
+// @description  Copy tweet links with one click and strip query parameters
+// @author       cro
+// @match        https://*.twitter.com/*
+// @icon         https://www.google.com/s2/favicons?domain=twitter.com
+// @grant        none
+// @license      MIT
+// ==/UserScript==
+/* jshint esversion: 6 */
+
+(function()
+{
+    'use strict';
+    let id = 'cro-copy-id';
+
+    let make_button = function()
+    {
+        let button = document.createElement('button');
+        button.textContent = 'copy link';
+        button.onclick = function ()
+        {
+            let url = new URL(button.closest('article').querySelector('[href*="status"]').href);
+            url.pathname = url.pathname.split('/').slice(0,4).join('/');
+            navigator.clipboard.writeText(url.toString());
+        };
+        button.id = id;
+        return button;
+    };
+
+    setInterval(function()
+    {
+        let nodes = document.querySelectorAll('article div[role="group"]');
+        for (let node of nodes)
+        {
+            if (!node.querySelector(`#${id}`))
+            {
+                node.lastChild.append(make_button());
+            }
+        }
+    }, 250);
+})();
