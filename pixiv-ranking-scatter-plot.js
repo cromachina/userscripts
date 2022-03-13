@@ -9,7 +9,7 @@
 // @grant        none
 // @license      MIT
 // @require      https://cdn.jsdelivr.net/npm/chart.js@3.7.1/dist/chart.min.js
-// @require      https://cdn.jsdelivr.net/npm/chartjs-adapter-date-fns/dist/chartjs-adapter-date-fns.bundle.min.js
+// @require      https://cdn.jsdelivr.net/npm/chartjs-adapter-date-fns@2.0.0/dist/chartjs-adapter-date-fns.bundle.min.js
 // ==/UserScript==
 /* jshint esversion: 6 */
 
