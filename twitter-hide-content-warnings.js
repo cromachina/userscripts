@@ -17,6 +17,7 @@
     {
         document.querySelectorAll('a[href*="appeal_tweet_warning"]').forEach(node => node.closest('div.r-14gqq1x').remove());
         document.querySelectorAll('div[role="button"].r-173mn98').forEach(node => node.click());
+        document.querySelectorAll('div[role="button"].r-e1k2in').forEach(node => node.remove());
     }, 250);
 
     // Wrap this entire call so that we do not disrupt the website with errors.
