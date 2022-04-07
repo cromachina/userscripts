@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Twitter hide content warning crap
 // @namespace    http://tampermonkey.net/
-// @version      0.6
+// @version      0.7
 // @description  Hide that annoying box. Also get rid of that blur filter.
 // @author       You
 // @match        https://*.twitter.com/*
