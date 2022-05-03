@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Twitter Show All Replies
 // @namespace    http://tampermonkey.net/
-// @version      0.1
+// @version      0.2
 // @description  Remove the s=... query parameter from status pages, which will usually reveal all replies.
 // @author       cro
 // @match        https://twitter.com/*
@@ -15,7 +15,7 @@
     'use strict';
     const path_regex = /\/.+\/status\//;
 
-    let remove_param = function (state)
+    let remove_param = function(state)
     {
         let url = new URL(window.location);
         if (url.pathname.match(path_regex))
@@ -33,11 +33,27 @@
 
     // In the event that SPA navigation brings us to a page with the target param, then intercept and replace.
     // I think that this may only happen if navigating via mobile.
-    history.pushState = function ()
+    history.pushState = function()
     {
         pushState.apply(this, arguments);
         remove_param(this.state);
     };
 
     remove_param(history.state);
+
+    let click_show_more = function()
+    {
+        if (!window.location.pathname.includes('/status/'))
+        {
+            return;
+        }
+        let maybe_node = document.querySelector('main[role="main"] section div div')?.lastChild?.previousSibling;
+        if (maybe_node?.querySelector('[data-testid="tweet"]'))
+        {
+            return;
+        }
+        maybe_node?.querySelector('[role="button"]')?.click()
+    };
+
+    setInterval(click_show_more, 500);
 })();
