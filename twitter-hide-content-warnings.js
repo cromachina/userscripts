@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Twitter hide content warning crap
 // @namespace    http://tampermonkey.net/
-// @version      0.7
+// @version      0.8
 // @description  Hide that annoying box. Also get rid of that blur filter.
 // @author       You
 // @match        https://*.twitter.com/*
@@ -15,7 +15,7 @@
     'use strict';
     setInterval(function ()
     {
-        document.querySelectorAll('a[href*="appeal_tweet_warning"]').forEach(node => node.closest('div.r-14gqq1x').remove());
+        document.querySelectorAll('a[href*="appeal_tweet_warning"]').forEach(node => node.closest('div[aria-live]')?.remove());
         document.querySelectorAll('div[role="button"].r-173mn98').forEach(node => node.click());
         document.querySelectorAll('div[role="button"].r-e1k2in').forEach(node => node.remove());
     }, 250);
