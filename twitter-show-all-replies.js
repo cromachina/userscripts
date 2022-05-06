@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Twitter Show All Replies
 // @namespace    http://tampermonkey.net/
-// @version      0.3
+// @version      0.4
 // @description  Remove the s=... query parameter from status pages, which will usually reveal all replies.
 // @author       cro
 // @match        https://twitter.com/*
@@ -44,6 +44,10 @@
     let click_show_more = function()
     {
         if (!window.location.pathname.includes('/status/'))
+        {
+            return;
+        }
+        if (window.location.pathname.includes('/photo/'))
         {
             return;
         }
