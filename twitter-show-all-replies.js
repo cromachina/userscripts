@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Twitter Show All Replies
 // @namespace    http://tampermonkey.net/
-// @version      0.2
+// @version      0.3
 // @description  Remove the s=... query parameter from status pages, which will usually reveal all replies.
 // @author       cro
 // @match        https://twitter.com/*
@@ -47,12 +47,19 @@
         {
             return;
         }
-        let maybe_node = document.querySelector('main[role="main"] section div div')?.lastChild?.previousSibling;
-        if (maybe_node?.querySelector('[data-testid="tweet"]'))
+        let nodes = document.querySelector('main[role="main"] section')?.lastChild?.firstChild?.children;
+        if (!nodes)
         {
             return;
         }
-        maybe_node?.querySelector('[role="button"]')?.click()
+        for (let node of nodes)
+        {
+            if (node.querySelector('[data-testid="tweet"]'))
+            {
+                continue;
+            }
+            node.querySelector('[role="button"]')?.click()
+        }
     };
 
     setInterval(click_show_more, 500);
