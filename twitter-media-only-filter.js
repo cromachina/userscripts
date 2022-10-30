@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Twitter media-only filter toggle.
-// @version      0.10
-// @description  Toggle non-media tweets on and off, for the power-viewer!
+// @version      0.11
+// @description  Toggle non-media tweets on and off on the home timeline, for the power-viewer!
 // @author       Cro
 // @match        https://twitter.com/*
 // @run-at       document-idle
@@ -29,7 +29,7 @@
     let create_ui = function(target)
     {
         let button = document.createElement("button");
-        let set_button_state = () => { button.innerText = show_all ? "All Tweets" : "Only Media Tweets"; };
+        let set_button_state = () => { button.innerText = show_all ? "Showing all home tweets" : "Showing only media home tweets"; };
 
         button.onclick = function(event)
         {
@@ -46,7 +46,7 @@
     {
         setInterval(function()
         {
-            if (!location.pathname.startsWith("/notifications"))
+            if (location.pathname == "/home")
             {
                 set_all_article_states();
             }
