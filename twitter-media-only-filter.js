@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name         Twitter media-only filter toggle.
-// @version      0.11
+// @version      0.12
 // @description  Toggle non-media tweets on and off on the home timeline, for the power-viewer!
 // @author       Cro
 // @match        https://twitter.com/*
@@ -50,7 +50,7 @@
             {
                 set_all_article_states();
             }
-        }, 250);
+        });
     };
 
     // Wait for twitter's react crap finish loading things.
