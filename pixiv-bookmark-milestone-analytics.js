@@ -1,12 +1,11 @@
 // ==UserScript==
 // @name         Pixiv Bookmark Milestone Analytics
 // @namespace    http://tampermonkey.net/
-// @version      0.1
+// @version      0.2
 // @description  Display a dashboard table of times when artworks reach 1000 bookmark milestones. The script must remain running to collect statistics accurately.
 // @author       cro
 // @match        https://www.pixiv.net/*
 // @icon         https://www.google.com/s2/favicons?sz=64&domain=pixiv.net
-// @license      MIT
 // @grant        GM_setValue
 // @grant        GM_getValue
 // @grant        GM_addStyle
@@ -98,10 +97,8 @@
         let scrollTop = table.scrollTop;
         let scrollLeft = table.scrollLeft;
         table.innerHTML = "";
-
         let ids = Object.keys(data);
         ids = ids.sort((a, b) => b - a);
-
         for (let id of ids)
         {
             let record = data[id];
@@ -142,11 +139,9 @@
         }
         let maybe_table = document.querySelector(`#${data_key}`);
         if (!maybe_table) {
-            let dock = document.querySelector("div.sc-17pv5r7-7.gPmywC");
-            if (dock) {
-                dock.prepend(table);
-                dock.prepend(order_button);
-            }
+            let dock = document.querySelector("#root");
+            dock.prepend(table);
+            dock.prepend(order_button);
         }
     };
 
