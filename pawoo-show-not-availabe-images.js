@@ -1,8 +1,8 @@
 // ==UserScript==
 // @name         Pawoo show 'Not Available' images
 // @namespace    http://tampermonkey.net/
-// @version      0.1
-// @description  Inlines images that are shown as 'not available' particularly from Misskey servers.
+// @version      0.2
+// @description  Attempt to fix the issue where images show as 'Not Available' on Pawoo.
 // @author       cro
 // @match        https://pawoo.net/*
 // @icon         https://www.google.com/s2/favicons?sz=64&domain=pawoo.net
@@ -14,20 +14,37 @@
 (function() {
     'use strict';
 
-    let inline_images = function()
+    let fix_media = function(media)
     {
-        for (let media_node of document.querySelectorAll('a.media-gallery__item-thumbnail'))
+        if (media.type == 'unknown' && (media.remote_url.endsWith('webp') || media.remote_url.endsWith('gif')))
         {
-            if (!media_node.querySelector('img'))
-            {
-                let img = document.createElement('img');
-                img.src = media_node.href;
-                media_node.appendChild(img);
-                media_node.querySelector('canvas')?.remove();
-                media_node.closest('div.media-gallery').querySelector('.spoiler-button')?.remove();
-            }
+            media.url = media.remote_url;
+            media.preview_url = media.remote_url;
+            media.preview_remote_url = media.remote_url;
+            media.type = 'image';
         }
     };
 
-    setInterval(inline_images, 250);
+    let fix_status = function(status)
+    {
+        status.media_attachments.forEach(fix_media);
+        if (status.reblog)
+        {
+            status.reblog.media_attachments.forEach(fix_media);
+        }
+    };
+
+    let safe_call = function(f)
+    {
+        try { f(); } catch {}
+    };
+
+    let old_parse = JSON.parse;
+    JSON.parse = function(str)
+    {
+        let obj = old_parse(str);
+        safe_call(() => obj.forEach(fix_status));
+        safe_call(() => fix_status(obj));
+        return obj;
+    }
 })();
