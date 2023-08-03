@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Pixiv ranking scatter plot
 // @namespace    http://tampermonkey.net/
-// @version      0.1
+// @version      0.2
 // @description  Show a scatter plot of date versus rank
 // @author       cro
 // @match        https://www.pixiv.net/dashboard/report/ranking*
@@ -35,7 +35,13 @@
     div.appendChild(canvas);
     menubar.insertAdjacentElement('beforeBegin', div);
     let dates = Array.from(document.querySelectorAll('h1.date')).map(x => date_parse(x.textContent));
-    let ranks = Array.from(document.querySelectorAll('h1.rank')).map(x => parseInt(x.textContent.match(rank_regex)));
+    let top_rank = function(n)
+    {
+        let crown = document.querySelector(`.crown${n}`);
+        return crown ? Array.from(crown.nextSibling.querySelectorAll('h1.date')).map(x => n) : [];
+    }
+    let top_ranks = [1,2,3].map(top_rank).flat();
+    let ranks = top_ranks.concat(Array.from(document.querySelectorAll('h1.rank')).map(x => parseInt(x.textContent.match(rank_regex))));
     let data = {
         datasets: [{
             label: 'Date vs Rank',
@@ -63,7 +69,9 @@
                         display: true,
                         text: 'Rank'
                     },
-                    reverse: true
+                    reverse: true,
+                    min: 0,
+                    suggestedMax: 100,
                 }
             }
         }
