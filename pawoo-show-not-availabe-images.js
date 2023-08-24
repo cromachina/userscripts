@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Pawoo show 'Not Available' images
 // @namespace    http://tampermonkey.net/
-// @version      0.2
+// @version      0.3
 // @description  Attempt to fix the issue where images show as 'Not Available' on Pawoo.
 // @author       cro
 // @match        https://pawoo.net/*
@@ -16,7 +16,7 @@
 
     let fix_media = function(media)
     {
-        if (media.type == 'unknown' && (media.remote_url.endsWith('webp') || media.remote_url.endsWith('gif')))
+        if (media.type == 'unknown')
         {
             media.url = media.remote_url;
             media.preview_url = media.remote_url;
