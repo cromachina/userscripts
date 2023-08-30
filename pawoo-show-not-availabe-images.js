@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Pawoo show 'Not Available' images
 // @namespace    http://tampermonkey.net/
-// @version      0.3
+// @version      0.4
 // @description  Attempt to fix the issue where images show as 'Not Available' on Pawoo.
 // @author       cro
 // @match        https://pawoo.net/*
@@ -14,6 +14,17 @@
 (function() {
     'use strict';
 
+    let video_types = ['.m4v', '.mp4', '.webm'];
+
+    let get_type = function(url)
+    {
+        if (video_types.some(x => url.endsWith(x)))
+        {
+            return 'video';
+        }
+        return 'image';
+    }
+
     let fix_media = function(media)
     {
         if (media.type == 'unknown')
@@ -21,7 +32,7 @@
             media.url = media.remote_url;
             media.preview_url = media.remote_url;
             media.preview_remote_url = media.remote_url;
-            media.type = 'image';
+            media.type = get_type(media.remote_url);
         }
     };
 
