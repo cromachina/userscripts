@@ -7,6 +7,7 @@
 // @match        https://pawoo.net/*
 // @icon         https://www.google.com/s2/favicons?sz=64&domain=pawoo.net
 // @grant        GM_addStyle
+// @license      MIT
 // ==/UserScript==
 
 (function() {
