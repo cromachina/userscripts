@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Pixiv remove dashboard confetti
 // @namespace    http://tampermonkey.net/
-// @version      0.5
+// @version      0.6
 // @description  Remove the confetti effect on the dashboard status as it wastes GPU power.
 // @author       You
 // @match        https://www.pixiv.net/*
@@ -13,6 +13,6 @@
 
 (function() {
     'use strict';
-    let process = () => void document.querySelector('canvas.sc-ef86180f-0')?.remove();
+    let process = () => void document.querySelector('canvas.sc-1bc71386-0')?.remove();
     setInterval(process, 1000);
 })();
