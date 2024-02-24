@@ -1,9 +1,9 @@
 // ==UserScript==
 // @name         Twitter hide content warning crap
 // @namespace    http://tampermonkey.net/
-// @version      0.9
-// @description  Hide that annoying box. Also get rid of that blur filter.
-// @author       You
+// @version      0.10
+// @description  Makes it so nothing is marked as sensitive.
+// @author       cromachina
 // @match        https://*.twitter.com/*
 // @icon         https://www.google.com/s2/favicons?domain=twitter.com
 // @grant        none
@@ -13,81 +13,44 @@
 
 (function() {
     'use strict';
-    setInterval(function ()
-    {
-        document.querySelectorAll('a[href*="report_story_start"]').forEach(node => node.closest('div[aria-live]')?.remove());
-        document.querySelectorAll('div[role="button"].r-173mn98').forEach(node => node.click());
-        document.querySelectorAll('div[role="button"].r-e1k2in').forEach(node => node.remove());
-    }, 250);
 
-    // Wrap this entire call so that we do not disrupt the website with errors.
-    let safe_call = function(fn, arg)
+    let find_objects_at_keys = function(obj, keys)
     {
-        try
+        let found = [];
+        let stack = Object.entries(obj);
+        while (stack.length > 0)
         {
-            fn(arg);
+            let current = stack.pop();
+            if (keys.indexOf(current[0] != -1))
+            {
+                found.push(current[1]);
+            }
+            if (current[1] != null && typeof(current[1]) == 'object')
+            {
+                stack = stack.concat(Object.entries(current[1]));
+            }
         }
-        catch
-        {
-        }
+        return found;
     };
 
-    let legacy_data_mod = function(legacy)
+    let fix_media = function(data)
     {
-        legacy.possibly_sensitive = false;
-        let media_data = legacy.extended_entities.media;
-        for (let media of media_data)
+        for (let obj of find_objects_at_keys(data, ['media']))
         {
-            delete media.sensitive_media_warning;
-        }
-    };
-
-    let timeline_entries_mod = function(entries)
-    {
-        for (let entry of entries)
-        {
-            let legacy = entry?.content?.itemContent?.tweet_results?.result?.legacy;
-            safe_call(legacy_data_mod, legacy);
-            safe_call(legacy_data_mod, legacy?.retweeted_status_result?.result?.legacy);
-        }
-    }
-
-    let media_mod = function(tw_response)
-    {
-        let entries = tw_response.data.user.result.timeline_v2.timeline.instructions[0].entries;
-        timeline_entries_mod(entries);
-    };
-
-    let tweets_mod = function(tw_response)
-    {
-        let entries = tw_response.data.user.result.timeline.timeline.instructions[0].entries;
-        timeline_entries_mod(entries);
-    };
-
-    let tweet_detail_mod = function(tw_response)
-    {
-        let entries = tw_response.data.threaded_conversation_with_injections.instructions[0].entries;
-        timeline_entries_mod(entries);
-    };
-
-    // Modifying data on the home page is not working. I'm not sure what field twitter is looking at,
-    // but these are the only reasonable ones that I could find. The above "click" will hand any leftovers.
-    let tweet_data_mod = function(tweet)
-    {
-        tweet.possibly_sensitive = false;
-        let media_data = tweet.extended_entities.media;
-        for (let media of media_data)
-        {
-            media.ext_sensitive_media_warning = null;
-        }
-    };
-
-    let global_mod = function(tw_response)
-    {
-        for (let tweet in tw_response.globalObjects.tweets)
-        {
-            safe_call(tweet_data_mod, tweet);
-        }
+            if (!Array.isArray(obj))
+            {
+                continue;
+            }
+            for (let media of obj)
+            {
+                if (typeof media != 'object')
+                {
+                    continue;
+                }
+                delete media.sensitive_media_warning;
+                media.ext_sensitive_media_warning = null;
+            }
+        };
     };
 
     // Intercept JSON parses to alter the sensitive media data.
@@ -95,10 +58,7 @@
     JSON.parse = function(string)
     {
         let data = old_parse(string);
-        safe_call(media_mod, data);
-        safe_call(tweets_mod, data);
-        safe_call(tweet_detail_mod, data);
-        safe_call(global_mod, data);
+        fix_media(data);
         return data;
     };
 })();
