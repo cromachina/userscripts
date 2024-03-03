@@ -1,33 +1,63 @@
 // ==UserScript==
 // @name         Pawoo show 'Not Available' images
 // @namespace    http://tampermonkey.net/
-// @version      0.4
+// @version      0.5
 // @description  Attempt to fix the issue where images show as 'Not Available' on Pawoo.
 // @author       cro
 // @match        https://pawoo.net/*
 // @icon         https://www.google.com/s2/favicons?sz=64&domain=pawoo.net
-// @grant        none
 // @license      MIT
+// @downloadURL https://update.greasyfork.org/scripts/470147/Pawoo%20show%20%27Not%20Available%27%20images.user.js
+// @updateURL https://update.greasyfork.org/scripts/470147/Pawoo%20show%20%27Not%20Available%27%20images.meta.js
 // ==/UserScript==
 /* jshint esversion: 6 */
 
 (function() {
     'use strict';
+    let find_objects_at_keys = function(obj, keys)
+    {
+        let found = [];
+        let stack = Object.entries(obj);
+        while (stack.length > 0)
+        {
+            let current = stack.pop();
+            if (keys.indexOf(current[0] != -1))
+            {
+                found.push(current[1]);
+            }
+            if (current[1] != null && typeof(current[1]) == 'object')
+            {
+                stack = stack.concat(Object.entries(current[1]));
+            }
+        }
+        return found;
+    };
 
-    let video_types = ['.m4v', '.mp4', '.webm'];
+    let video_types = new Set([
+        '3g2',
+        '3gp',
+        'avi',
+        'm4v',
+        'mov',
+        'mp4',
+        'mpeg',
+        'ogv',
+        'ts',
+        'webm',
+    ]);
 
     let get_type = function(url)
     {
-        if (video_types.some(x => url.endsWith(x)))
+        if (video_types.has(url.split('.').pop()))
         {
             return 'video';
         }
         return 'image';
-    }
+    };
 
     let fix_media = function(media)
     {
-        if (media.type == 'unknown')
+        if (typeof media == 'object' && media.type == 'unknown')
         {
             media.url = media.remote_url;
             media.preview_url = media.remote_url;
@@ -36,26 +66,27 @@
         }
     };
 
-    let fix_status = function(status)
+    let fix_media_attachments = function(data)
     {
-        status.media_attachments.forEach(fix_media);
-        if (status.reblog)
+        for (let obj of find_objects_at_keys(data, ['media_attachments']))
         {
-            status.reblog.media_attachments.forEach(fix_media);
-        }
+            if (!Array.isArray(obj))
+            {
+                continue;
+            }
+            for (let media of obj)
+            {
+                fix_media(media);
+            }
+        };
     };
 
-    let safe_call = function(f)
+    let old_parse = unsafeWindow.JSON.parse;
+    let new_parse = function(string)
     {
-        try { f(); } catch {}
+        let data = old_parse(string);
+        fix_media_attachments(data);
+        return data;
     };
-
-    let old_parse = JSON.parse;
-    JSON.parse = function(str)
-    {
-        let obj = old_parse(str);
-        safe_call(() => obj.forEach(fix_status));
-        safe_call(() => fix_status(obj));
-        return obj;
-    }
+    exportFunction(new_parse, unsafeWindow.JSON, { defineAs: "parse" });
 })();
