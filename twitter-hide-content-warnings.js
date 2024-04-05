@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Twitter hide content warning crap
 // @namespace    http://tampermonkey.net/
-// @version      0.11
+// @version      0.12
 // @description  Makes it so nothing is marked as sensitive.
 // @author       cromachina
 // @match        https://*.twitter.com/*
@@ -48,6 +48,13 @@
                 media.ext_sensitive_media_warning = null;
             }
         };
+        for (let obj of find_objects_at_keys(data, ['legacy']))
+        {
+            if (obj)
+            {
+                obj.possibly_sensitive = false;
+            }
+        }
     };
 
     // Intercept JSON parses to alter the sensitive media data.
@@ -55,7 +62,14 @@
     let new_parse = function(string)
     {
         let data = old_parse(string);
-        fix_media(data);
+        try
+        {
+            fix_media(data);
+        }
+        catch(error)
+        {
+            console.log(error);
+        }
         return data;
     };
     exportFunction(new_parse, unsafeWindow.JSON, { defineAs: "parse" });
