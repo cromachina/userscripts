@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Twitter hide content warning crap
 // @namespace    http://tampermonkey.net/
-// @version      0.12
+// @version      0.13
 // @description  Makes it so nothing is marked as sensitive.
 // @author       cromachina
 // @match        https://*.twitter.com/*
@@ -50,7 +50,7 @@
         };
         for (let obj of find_objects_at_keys(data, ['legacy']))
         {
-            if (obj)
+            if (obj != null && obj.hasOwnProperty('possibly_sensitive') && typeof obj.possibly_sensitive == 'boolean')
             {
                 obj.possibly_sensitive = false;
             }
