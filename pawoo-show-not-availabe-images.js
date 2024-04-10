@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Pawoo show 'Not Available' images
 // @namespace    http://tampermonkey.net/
-// @version      0.5
+// @version      0.6
 // @description  Attempt to fix the issue where images show as 'Not Available' on Pawoo.
 // @author       cro
 // @match        https://pawoo.net/*
@@ -21,7 +21,7 @@
         while (stack.length > 0)
         {
             let current = stack.pop();
-            if (keys.indexOf(current[0] != -1))
+            if (keys.includes(current[0]))
             {
                 found.push(current[1]);
             }
@@ -85,7 +85,10 @@
     let new_parse = function(string)
     {
         let data = old_parse(string);
-        fix_media_attachments(data);
+        if (data != null)
+        {
+            fix_media_attachments(data);
+        }
         return data;
     };
     exportFunction(new_parse, unsafeWindow.JSON, { defineAs: "parse" });
