@@ -1,10 +1,11 @@
 // ==UserScript==
 // @name         Twitter hide content warning crap
 // @namespace    http://tampermonkey.net/
-// @version      0.13
+// @version      0.14
 // @description  Makes it so nothing is marked as sensitive.
 // @author       cromachina
 // @match        https://*.twitter.com/*
+// @match        https://*.x.com/*
 // @icon         https://www.google.com/s2/favicons?domain=twitter.com
 // @license      MIT
 // ==/UserScript==
@@ -18,7 +19,7 @@
         while (stack.length > 0)
         {
             let current = stack.pop();
-            if (keys.indexOf(current[0] != -1))
+            if (keys.includes(current[0]))
             {
                 found.push(current[1]);
             }
@@ -64,7 +65,10 @@
         let data = old_parse(string);
         try
         {
-            fix_media(data);
+            if (data != null)
+            {
+                fix_media(data);
+            }
         }
         catch(error)
         {
