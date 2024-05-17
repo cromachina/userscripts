@@ -1,10 +1,11 @@
 // ==UserScript==
 // @name         Twitter Uncrop Images
 // @namespace    http://tampermonkey.net/
-// @version      0.2
+// @version      0.3
 // @description  Remove the image cropping on the timeline view.
 // @author       Cro
-// @match        https://twitter.com/*
+// @match        https://*.twitter.com/*
+// @match        https://*.x.com/*
 // @grant        none
 // ==/UserScript==
 

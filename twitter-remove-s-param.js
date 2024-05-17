@@ -1,10 +1,11 @@
 // ==UserScript==
 // @name         Twitter Remove s Param
 // @namespace    http://tampermonkey.net/
-// @version      0.1
+// @version      0.2
 // @description  Remove the s=... parameter from the page
 // @author       cro
-// @match        https://twitter.com/*
+// @match        https://*.twitter.com/*
+// @match        https://*.x.com/*
 // @icon         https://www.google.com/s2/favicons?domain=twitter.com
 // @grant        none
 // @license      MIT

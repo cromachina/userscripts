@@ -1,10 +1,11 @@
 // ==UserScript==
 // @name         Twitter fast clean link copy
 // @namespace    http://tampermonkey.net/
-// @version      0.1
+// @version      0.2
 // @description  Copy tweet links with one click and strip query parameters
 // @author       cro
 // @match        https://*.twitter.com/*
+// @match        https://*.x.com/*
 // @icon         https://www.google.com/s2/favicons?domain=twitter.com
 // @grant        none
 // @license      MIT

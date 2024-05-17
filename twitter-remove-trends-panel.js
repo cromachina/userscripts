@@ -1,11 +1,11 @@
 // ==UserScript==
 // @name         Twitter Remove Trends Panel
 // @namespace    http://tampermonkey.net/
-// @version      0.3
+// @version      0.4
 // @description  Remove the in-your-face trends panel on the side of your feed.
 // @author       Cromachina
-// @match        https://twitter.com/*
-// @match        https://mobile.twitter.com/*
+// @match        https://*.twitter.com/*
+// @match        https://*.x.com/*
 // @grant        none
 // @icon         https://www.google.com/s2/favicons?domain=twitter.com
 // @license      MIT

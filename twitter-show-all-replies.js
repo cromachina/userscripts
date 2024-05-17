@@ -1,10 +1,11 @@
 // ==UserScript==
 // @name         Twitter Show All Replies
 // @namespace    http://tampermonkey.net/
-// @version      0.6
+// @version      0.7
 // @description  Automatically click 'show more replies'
 // @author       cro
-// @match        https://twitter.com/*
+// @match        https://*.twitter.com/*
+// @match        https://*.x.com/*
 // @icon         https://www.google.com/s2/favicons?domain=twitter.com
 // @grant        none
 // @license      MIT
