@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name         Twitter media-only filter toggle.
-// @version      0.14
+// @version      0.15
 // @description  Toggle non-media tweets on and off on the home timeline, for the power-viewer!
 // @author       Cro
 // @match        https://*.twitter.com/*
@@ -15,7 +15,6 @@
 /* jshint esversion: 6 */
 
 (function() {
-    'use strict';
     let storage_key = "cro-media-toggle";
     let show_all = GM_getValue(storage_key);
 
@@ -55,9 +54,9 @@
 
     let has_media = function(obj)
     {
-        if (obj.entryId.contains("tweet"))
+        if (obj.entryId.includes("tweet"))
         {
-            return obj.content.itemContent.tweet_results.result.legacy.entities.hasOwnProperty('media');
+            return obj?.content?.itemContent?.tweet_results?.result?.legacy?.entities?.hasOwnProperty('media');
         }
         return true;
     };
@@ -72,16 +71,18 @@
         {
             for (let subobj of obj)
             {
-                subobj.entries = subobj.entries.filter(has_media);
+                if (subobj.hasOwnProperty('entries'))
+                {
+                    subobj.entries = subobj.entries.filter(has_media);
+                }
             }
-        };
+        }
     };
 
-    // Intercept JSON parses to alter the sensitive media data.
     let old_parse = unsafeWindow.JSON.parse;
     let new_parse = function(string)
     {
-        let data = old_parse(string);
+        let data = JSON.parse(string);
         try
         {
             if (data != null)
@@ -93,7 +94,7 @@
         {
             console.log(error);
         }
-        return data;
+        return old_parse(JSON.stringify(data));;
     };
     exportFunction(new_parse, unsafeWindow.JSON, { defineAs: "parse" });
 
