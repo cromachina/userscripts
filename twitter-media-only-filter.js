@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name         Twitter media-only filter toggle.
-// @version      0.13
+// @version      0.14
 // @description  Toggle non-media tweets on and off on the home timeline, for the power-viewer!
 // @author       Cro
 // @match        https://*.twitter.com/*
@@ -18,41 +18,84 @@
     'use strict';
     let storage_key = "cro-media-toggle";
     let show_all = GM_getValue(storage_key);
-    let has_photo = node => node.querySelector('[data-testid="tweetPhoto"]');
-    let has_video = node => node.querySelector('[data-testid="videoPlayer"]');
-    let has_card_media = node => node.querySelector('[data-testid*="media"]');
-    let has_media = node => [has_photo, has_video, has_card_media].some(f => f(node));
-    let get_target_parent = node => node.parentNode.parentNode.parentNode;
-    let for_each_article = func => void document.body.querySelectorAll("article").forEach(func);
-    let set_article_state = node => void(get_target_parent(node).style.display = show_all || has_media(node) ? "block" : "none");
-    let set_all_article_states = () => void for_each_article(set_article_state);
 
     let create_ui = function(target)
     {
         let button = document.createElement("button");
-        let set_button_state = () => { button.innerText = show_all ? "Showing all home tweets" : "Showing only media home tweets"; };
+        button.innerText = show_all ? "Showing all home tweets" : "Showing only media home tweets";
 
         button.onclick = function(event)
         {
             show_all = !show_all;
             GM_setValue(storage_key, show_all);
-            set_button_state();
+            location.reload();
         };
 
         target.prepend(button);
-        set_button_state();
     };
 
-    let start_process = function()
+    let find_objects_at_keys = function(obj, keys)
     {
-        setInterval(function()
+        let found = [];
+        let stack = Object.entries(obj);
+        while (stack.length > 0)
         {
-            if (location.pathname == "/home")
+            let current = stack.pop();
+            if (keys.includes(current[0]))
             {
-                set_all_article_states();
+                found.push(current[1]);
             }
-        });
+            if (current[1] != null && typeof(current[1]) == 'object')
+            {
+                stack = stack.concat(Object.entries(current[1]));
+            }
+        }
+        return found;
     };
+
+    let has_media = function(obj)
+    {
+        if (obj.entryId.contains("tweet"))
+        {
+            return obj.content.itemContent.tweet_results.result.legacy.entities.hasOwnProperty('media');
+        }
+        return true;
+    };
+
+    let update_data = function(data)
+    {
+        if (show_all || location.pathname != '/home')
+        {
+            return;
+        }
+        for (let obj of find_objects_at_keys(data, ['instructions']))
+        {
+            for (let subobj of obj)
+            {
+                subobj.entries = subobj.entries.filter(has_media);
+            }
+        };
+    };
+
+    // Intercept JSON parses to alter the sensitive media data.
+    let old_parse = unsafeWindow.JSON.parse;
+    let new_parse = function(string)
+    {
+        let data = old_parse(string);
+        try
+        {
+            if (data != null)
+            {
+                update_data(data);
+            }
+        }
+        catch(error)
+        {
+            console.log(error);
+        }
+        return data;
+    };
+    exportFunction(new_parse, unsafeWindow.JSON, { defineAs: "parse" });
 
     // Wait for twitter's react crap finish loading things.
     let scan_interval = setInterval(function()
@@ -61,7 +104,6 @@
         if (target)
         {
             clearInterval(scan_interval);
-            start_process(target);
             create_ui(target);
         }
     }, 10);
