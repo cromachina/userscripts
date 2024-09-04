@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name         Twitter media-only filter toggle.
-// @version      0.16
+// @version      0.17
 // @description  Toggle non-media tweets on and off on the home timeline, for the power-viewer!
 // @author       Cro
 // @match        https://*.twitter.com/*
@@ -11,6 +11,8 @@
 // @namespace https://greasyfork.org/users/10865
 // @icon         https://www.google.com/s2/favicons?domain=twitter.com
 // @license      MIT
+// @downloadURL https://update.greasyfork.org/scripts/39130/Twitter%20media-only%20filter%20toggle.user.js
+// @updateURL https://update.greasyfork.org/scripts/39130/Twitter%20media-only%20filter%20toggle.meta.js
 // ==/UserScript==
 /* jshint esversion: 6 */
 
@@ -54,11 +56,14 @@
 
     let has_media = function(obj)
     {
-        if (obj.entryId.includes("tweet"))
+        if (obj.entryId.includes("cursor-"))
+        {
+            return true;
+        }
+        else
         {
             return obj?.content?.itemContent?.tweet_results?.result?.legacy?.entities?.hasOwnProperty('media');
         }
-        return true;
     };
 
     let update_data = function(data)
@@ -79,10 +84,11 @@
         }
     };
 
-    let old_parse = unsafeWindow.JSON.parse;
-    let new_parse = function(string)
+    let old_parse = JSON.parse;
+    let unsafe_window_parse = unsafeWindow.JSON.parse;
+    let new_unsafe_window_parse = function(string)
     {
-        let data = JSON.parse(string);
+        let data = old_parse(string);
         try
         {
             if (data != null)
@@ -94,9 +100,9 @@
         {
             console.log(error);
         }
-        return old_parse(JSON.stringify(data));;
+        return unsafe_window_parse(JSON.stringify(data));;
     };
-    exportFunction(new_parse, unsafeWindow.JSON, { defineAs: "parse" });
+    exportFunction(new_unsafe_window_parse, unsafeWindow.JSON, { defineAs: "parse" });
 
     // Wait for twitter's react crap finish loading things.
     let scan_interval = setInterval(function()
