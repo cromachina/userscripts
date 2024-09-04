@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name         Twitter media-only filter toggle.
-// @version      0.15
+// @version      0.16
 // @description  Toggle non-media tweets on and off on the home timeline, for the power-viewer!
 // @author       Cro
 // @match        https://*.twitter.com/*
@@ -101,7 +101,7 @@
     // Wait for twitter's react crap finish loading things.
     let scan_interval = setInterval(function()
     {
-        let target = document.body.querySelector("h1[role='heading']");
+        let target = document.body.querySelector("nav[role='navigation']");
         if (target)
         {
             clearInterval(scan_interval);
