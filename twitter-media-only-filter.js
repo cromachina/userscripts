@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name         Twitter media-only filter toggle.
-// @version      0.19
+// @version      0.20
 // @description  Toggle non-media tweets on and off on the home timeline, for the power-viewer!
 // @author       Cro
 // @match        https://*.twitter.com/*
@@ -50,7 +50,7 @@
 
     let find_objects_at_keys = (obj, keys) => Array.from(walk_objects(obj)).filter(e => keys.includes(e[0])).map(e => e[1]);
     let any_key_in_obj = (obj, keys) => Array.from(walk_objects(obj)).some(e => keys.includes(e[0]));
-    let has_media = (obj) => obj.entryId.includes("cursor-") || any_key_in_obj(obj, ['media']);
+    let has_media = (obj) => obj.entryId.includes("cursor-") || any_key_in_obj(obj, ['media', 'card']);
 
     let update_data = function(data)
     {
