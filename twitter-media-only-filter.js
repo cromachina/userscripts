@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name         Twitter media-only filter toggle.
-// @version      0.17
+// @version      0.18
 // @description  Toggle non-media tweets on and off on the home timeline, for the power-viewer!
 // @author       Cro
 // @match        https://*.twitter.com/*
@@ -54,17 +54,13 @@
         return found;
     };
 
-    let has_media = function(obj)
-    {
-        if (obj.entryId.includes("cursor-"))
-        {
-            return true;
-        }
-        else
-        {
-            return obj?.content?.itemContent?.tweet_results?.result?.legacy?.entities?.hasOwnProperty('media');
-        }
-    };
+    let get_result = (obj) => obj?.content?.itemContent?.tweet_results?.result;
+    let get_quoted_result = (obj) => get_result(obj)?.quoted_status_result?.result;
+    let has_media_property = (result) => result?.legacy?.entities?.hasOwnProperty('media');
+    let has_media = (obj) =>
+        obj.entryId.includes("cursor-") ||
+        has_media_property(get_result(obj)) ||
+        has_media_property(get_quoted_result(obj));
 
     let update_data = function(data)
     {
