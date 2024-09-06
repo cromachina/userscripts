@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name         Twitter media-only filter toggle.
-// @version      0.18
+// @version      0.19
 // @description  Toggle non-media tweets on and off on the home timeline, for the power-viewer!
 // @author       Cro
 // @match        https://*.twitter.com/*
@@ -17,6 +17,7 @@
 /* jshint esversion: 6 */
 
 (function() {
+    'use strict';
     let storage_key = "cro-media-toggle";
     let show_all = GM_getValue(storage_key);
 
@@ -24,43 +25,32 @@
     {
         let button = document.createElement("button");
         button.innerText = show_all ? "Showing all home tweets" : "Showing only media home tweets";
-
         button.onclick = function(event)
         {
             show_all = !show_all;
             GM_setValue(storage_key, show_all);
             location.reload();
         };
-
         target.prepend(button);
     };
 
-    let find_objects_at_keys = function(obj, keys)
+    let walk_objects = function*(obj)
     {
-        let found = [];
         let stack = Object.entries(obj);
         while (stack.length > 0)
         {
-            let current = stack.pop();
-            if (keys.includes(current[0]))
+            let entry = stack.pop();
+            yield entry;
+            if (entry[1] != null && typeof(entry[1]) == 'object')
             {
-                found.push(current[1]);
-            }
-            if (current[1] != null && typeof(current[1]) == 'object')
-            {
-                stack = stack.concat(Object.entries(current[1]));
+                stack = stack.concat(Object.entries(entry[1]));
             }
         }
-        return found;
-    };
+    }
 
-    let get_result = (obj) => obj?.content?.itemContent?.tweet_results?.result;
-    let get_quoted_result = (obj) => get_result(obj)?.quoted_status_result?.result;
-    let has_media_property = (result) => result?.legacy?.entities?.hasOwnProperty('media');
-    let has_media = (obj) =>
-        obj.entryId.includes("cursor-") ||
-        has_media_property(get_result(obj)) ||
-        has_media_property(get_quoted_result(obj));
+    let find_objects_at_keys = (obj, keys) => Array.from(walk_objects(obj)).filter(e => keys.includes(e[0])).map(e => e[1]);
+    let any_key_in_obj = (obj, keys) => Array.from(walk_objects(obj)).some(e => keys.includes(e[0]));
+    let has_media = (obj) => obj.entryId.includes("cursor-") || any_key_in_obj(obj, ['media']);
 
     let update_data = function(data)
     {
