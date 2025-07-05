@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Pixiv extended dashboard statistics.
 // @namespace    http://tampermonkey.net/
-// @version      0.5
+// @version      0.6
 // @description  Put view-ratio data on likes, bookmarks, etc.
 // @author       cro
 // @match        https://www.pixiv.net/*
@@ -9,6 +9,8 @@
 // @grant        none
 // @require      https://cdnjs.cloudflare.com/ajax/libs/underscore.js/1.13.6/underscore-umd-min.js
 // @license      MIT
+// @downloadURL https://update.greasyfork.org/scripts/398979/Pixiv%20extended%20dashboard%20statistics.user.js
+// @updateURL https://update.greasyfork.org/scripts/398979/Pixiv%20extended%20dashboard%20statistics.meta.js
 // ==/UserScript==
 /* jshint esversion: 6 */
 
@@ -16,6 +18,7 @@
     'use strict';
     let id_name = "cro_pixiv_extended";
 
+    // Which container the source data is retrieved from.
     let make_set_ratio = function(container_query)
     {
         let get_container = function(node)
@@ -42,13 +45,15 @@
     };
 
     let query_array = (selector) => Array.from(document.querySelectorAll(selector).values());
+    let desktop_class = 'f4332f9e';
+    let mobile_class = 'cb68f05f';
 
     let process_all = function()
     {
         if (window.location.pathname == "/dashboard/works")
         {
             // Desktop view
-            if (document.querySelector('[class*=sc-1b2i4p6-0]'))
+            if (document.querySelector(`[class*=sc-${desktop_class}-0]`))
             {
                 let set_ratio = make_set_ratio('a');
                 let indices = query_array('div[class*=gtm-dashboard-works-sort-select]');
@@ -61,7 +66,7 @@
                 let view_index = get_index('view');
                 let like_index = get_index('rating');
                 let bookmark_index = get_index('bookmark');
-                let rows = _.chunk(query_array('div[class*=sc-1b2i4p6-25]'), indices.length + 1);
+                let rows = _.chunk(query_array(`div[class*=sc-${desktop_class}-25]`), indices.length + 1);
                 rows = rows.map(row => row.slice(2));
                 for (let row of rows)
                 {
@@ -71,10 +76,10 @@
                 }
             }
             // Mobile view
-            else if (document.querySelector('[class*=sc-18qovzs-0]'))
+            else if (document.querySelector(`[class*=sc-${mobile_class}-3]`))
             {
-                let set_ratio = make_set_ratio('div[class*=sc-18qovzs-13]');
-                let cell_nodes = query_array('div[class*=sc-18qovzs-7]');
+                let set_ratio = make_set_ratio(null);
+                let cell_nodes = query_array(`div[class*=sc-${mobile_class}-6]`);
                 for (let cell of cell_nodes)
                 {
                     let view = cell.querySelector('a[href*=access]');
