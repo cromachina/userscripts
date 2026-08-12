@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Pixiv extended dashboard statistics.
 // @namespace    http://tampermonkey.net/
-// @version      0.7
+// @version      0.8
 // @description  Put view-ratio data on likes, bookmarks, etc.
 // @author       cro
 // @match        https://www.pixiv.net/*
@@ -63,7 +63,7 @@
             for (let id of illusts)
             {
                 let likes = document.querySelector(`a[href="/dashboard/report/artworks?section=rating&id=${id}`);
-                let views = document.querySelector(`a[href="/dashboard/report/artworks?section=access&id=${id}`);
+                let views = document.querySelector(`div[data-ga4-entity-id="illust/${id}"] button`);
                 let bookmarks = document.querySelector(`a[href="/bookmark_detail.php?illust_id=${id}`);
                 set_ratio(likes, views);
                 set_ratio(bookmarks, views);
